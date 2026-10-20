@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Thi & Học Tập Thông Minh - Daily Quiz AI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        purple: {
+                            50: '#fbf7ff',
+                            100: '#f4ebff',
+                            200: '#e9d7fe',
+                            300: '#d6bbf1',
+                            400: '#b280e5',
+                            500: '#9b51e0',
+                            600: '#8b3bd7',
+                            700: '#7528be',
+                            800: '#5e1f9a',
+                            900: '#4a1979',
+                        },
+                        lavender: {
+                            50: '#f8f7ff',
+                            100: '#f0eeff',
+                            200: '#e0dcfe',
+                            300: '#c5bbfd',
+                            400: '#a38dfb',
+                            500: '#805ad5',
+                            600: '#6b46c1',
+                            700: '#553c9a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d6bbf1; border-radius: 9999px; }
+        .dark ::-webkit-scrollbar-thumb { background: #5e1f9a; }
+        .pastel-glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .pastel-glass {
+            background: rgba(30, 20, 50, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-purple-50/50 dark:bg-slate-950 text-slate-800 dark:text-purple-100 min-h-full flex flex-col transition-colors duration-200">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-30 pastel-glass border-b border-purple-200/60 dark:border-purple-900/40 px-4 py-3 shadow-sm">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-purple-600 to-lavender-400 text-white p-2.5 rounded-2xl shadow-md shadow-purple-200 dark:shadow-none">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-purple-700 to-lavender-600 dark:from-purple-300 dark:to-lavender-300 bg-clip-text text-transparent">DailyQuiz AI</h1>
+                    <p class="text-[11px] font-medium text-purple-600/70 dark:text-purple-300/60">Ôn luyện thông minh mỗi ngày</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <!-- Streak Badge -->
+                <div class="flex items-center gap-1.5 bg-purple-100/80 dark:bg-purple-900/50 text-purple-700 dark:text-purple-200 px-3 py-1.5 rounded-xl border border-purple-200/80 dark:border-purple-800/50 text-xs font-bold" title="Chuỗi ngày học liên tục">
+                    <i class="fa-solid fa-fire text-amber-500 animate-bounce"></i>
+                    <span id="streakDisplay">0 ngày</span>
+                </div>
+
+                <!-- Sound Toggle -->
+                <button id="soundToggle" class="p-2 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-xl transition-all" title="Bật/Tắt Âm thanh">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-base"></i>
+                </button>
+
+                <!-- Dark Mode Toggle Button -->
+                <button id="themeToggle" class="p-2 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-xl transition-all" title="Chuyển chế độ Sáng/Tối">
+                    <i class="fa-solid fa-moon dark:hidden text-base"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-400 text-base"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-3xl w-full mx-auto p-4 pb-28">
+
+        <!-- Notification Toast -->
+        <div id="toast" class="fixed top-16 right-4 left-4 md:left-auto md:w-80 bg-slate-900 text-white dark:bg-purple-100 dark:text-slate-900 px-4 py-3 rounded-2xl shadow-xl z-50 transform translate-y-[-150%] transition-transform duration-300 flex items-center gap-3 border border-purple-800/40 dark:border-purple-200">
+            <i id="toastIcon" class="fa-solid fa-circle-info text-purple-400 dark:text-purple-600 text-lg"></i>
+            <span id="toastMessage" class="text-xs font-medium flex-1">Thông báo ở đây</span>
+        </div>
+
+        <!-- TAB 1: ÔN TẬP HÔM NAY (DAILY QUIZ) -->
+        <section id="tab-study" class="tab-content space-y-4">
+            
+            <!-- Dashboard Quick Stats Banner -->
+            <div class="grid grid-cols-3 gap-2.5">
+                <div class="bg-white/80 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/40 p-3 rounded-2xl text-center shadow-sm">
+                    <p class="text-[10px] uppercase font-bold text-purple-400 dark:text-purple-300/70">Tổng số câu</p>
+                    <p id="statTotalQ" class="text-lg font-extrabold text-purple-700 dark:text-purple-200 mt-0.5">0</p>
+                </div>
+                <div class="bg-white/80 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/40 p-3 rounded-2xl text-center shadow-sm">
+                    <p class="text-[10px] uppercase font-bold text-purple-400 dark:text-purple-300/70">Tỷ lệ đúng</p>
+                    <p id="statAccuracy" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">0%</p>
+                </div>
+                <div class="bg-white/80 dark:bg-purple-950/40 border border-purple-100 dark:border-purple-900/40 p-3 rounded-2xl text-center shadow-sm">
+                    <p class="text-[10px] uppercase font-bold text-purple-400 dark:text-purple-300/70">Bài đã làm</p>
+                    <p id="statTestsCompleted" class="text-lg font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">0</p>
+                </div>
+            </div>
+
+            <!-- Selector Môn học & Cấu hình Timer -->
+            <div class="bg-white/90 dark:bg-slate-900/90 p-4 rounded-2xl border border-purple-100 dark:border-purple-900/40 shadow-sm space-y-3">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                    <label for="studySubjectSelect" class="font-bold text-xs uppercase tracking-wider flex items-center gap-2 text-purple-800 dark:text-purple-200">
+                        <i class="fa-solid fa-book-bookmark text-purple-600"></i> Chọn môn ôn tập:
+                    </label>
+                    <select id="studySubjectSelect" class="bg-purple-50/60 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-purple-900 dark:text-purple-100 text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        <!-- Subjects populated by JS -->
+                    </select>
+                </div>
+
+                <!-- Timer Settings Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-purple-100 dark:border-purple-900/40 text-xs text-slate-600 dark:text-purple-300">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-regular fa-clock text-purple-500"></i>
+                        <span class="font-medium">Đếm ngược:</span>
+                        <input type="checkbox" id="timerEnableToggle" checked class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
+                        <select id="timerSecondsSelect" class="bg-purple-50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 text-xs rounded-lg px-2 py-1 font-semibold">
+                            <option value="30">30 Giây</option>
+                            <option value="60" selected>60 Giây</option>
+                            <option value="90">90 Giây</option>
+                            <option value="120">120 Giây</option>
+                        </select>
+                    </div>
+
+                    <button id="btnNewSet" class="text-purple-700 dark:text-purple-300 hover:text-purple-900 font-bold flex items-center gap-1.5 bg-purple-100/70 dark:bg-purple-900/50 px-3 py-1.5 rounded-xl transition">
+                        <i class="fa-solid fa-arrows-rotate text-xs"></i> Đổi 5 câu mới
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Progress & Score Card -->
+            <div id="quizSummary" class="hidden bg-gradient-to-r from-purple-600 via-lavender-600 to-indigo-600 text-white p-4 rounded-2xl shadow-lg shadow-purple-200 dark:shadow-none space-y-2">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-xs uppercase font-bold tracking-wider opacity-90">Kết quả ôn tập hôm nay</span>
+                        <p id="totalTimeTakenText" class="text-[11px] opacity-80 mt-0.5"><i class="fa-regular fa-stopwatch"></i> Thời gian: 0s</p>
+                    </div>
+                    <span id="scoreText" class="text-xl font-black bg-white/20 px-3.5 py-1 rounded-xl backdrop-blur-md">0/5</span>
+                </div>
+                <div class="w-full bg-black/20 h-2.5 rounded-full overflow-hidden">
+                    <div id="scoreProgressBar" class="bg-white h-full w-0 transition-all duration-500 rounded-full"></div>
+                </div>
+                <p id="scoreFeedback" class="text-xs opacity-90 italic pt-1">Hãy trả lời từng câu hỏi bên dưới nhé!</p>
+            </div>
+
+            <!-- Quiz Questions Container -->
+            <div id="quizContainer" class="space-y-4">
+                <!-- Dynamic Quiz Cards loaded here -->
+            </div>
+
+            <!-- Empty State for Quiz -->
+            <div id="emptyQuizState" class="hidden text-center py-12 px-4 bg-white/80 dark:bg-slate-900/80 rounded-2xl border border-dashed border-purple-200 dark:border-purple-800">
+                <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900/40 text-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-folder-open text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-purple-900 dark:text-purple-200 text-base">Chưa có đủ câu hỏi</h3>
+                <p class="text-xs text-purple-600/70 dark:text-purple-300/70 mt-1 max-w-sm mx-auto">Môn này chưa có câu hỏi nào. Bạn có thể tự thêm hoặc dùng AI tạo tự động cực nhanh!</p>
+                <div class="flex justify-center gap-2 mt-4">
+                    <button onclick="switchTab('tab-ai')" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Dùng AI Tạo Câu Hỏi
+                    </button>
+                    <button onclick="switchTab('tab-manage')" class="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-200 text-xs font-bold px-4 py-2.5 rounded-xl border border-purple-200 dark:border-purple-700 transition">
+                        + Thêm thủ công
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: AI GEMINI TẠO CÂU HỎI TỰ ĐỘNG -->
+        <section id="tab-ai" class="tab-content hidden space-y-4">
+            <div class="bg-white/90 dark:bg-slate-900/90 p-5 rounded-2xl border border-purple-100 dark:border-purple-900/40 shadow-sm space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-xl shadow">
+                        <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-800 dark:text-purple-100 text-base">Trợ Lý AI Tạo Câu Hỏi</h2>
+                        <p class="text-xs text-purple-600/70 dark:text-purple-300/70">Dán tài liệu học/văn bản bài học, AI Gemini sẽ phân tích & tạo trắc nghiệm</p>
+                    </div>
+                </div>
+
+                <!-- Step 1: Target Subject -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-purple-800 dark:text-purple-300 mb-1">Môn học sẽ lưu câu hỏi vào:</label>
+                    <select id="aiSubjectSelect" class="w-full bg-purple-50/60 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-purple-900 dark:text-purple-100 text-sm font-semibold rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <!-- Step 2: Custom API Key input (Optional) -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-purple-800 dark:text-purple-300">Gemini API Key (Tùy chọn):</label>
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[11px] text-purple-600 dark:text-purple-400 underline hover:text-purple-800"><i class="fa-solid fa-arrow-up-right-from-square"></i> Lấy Key miễn phí</a>
+                    </div>
+                    <input type="password" id="userApiKeyInput" placeholder="Dán Gemini API key của bạn vào đây (nếu có)..." class="w-full bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    <p class="text-[10px] text-slate-400 mt-1">* Hệ thống có sẵn APIKey tích hợp. Nhập key riêng nếu bạn muốn không giới hạn lượt tạo.</p>
+                </div>
+
+                <!-- Step 3: Material Text Input -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-purple-800 dark:text-purple-300 mb-1">Nội dung tài liệu / Bài học:</label>
+                    <textarea id="aiSourceText" rows="6" placeholder="Dán đoạn văn bản bài học, kiến thức ôn tập hoặc ghi chú của bạn vào đây (Ví dụ: Định luật Newton, Từ vựng Tiếng Anh, Lịch sử...)..." class="w-full bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl p-3 text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none leading-relaxed"></textarea>
+                </div>
+
+                <!-- Number of Questions -->
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-bold text-purple-800 dark:text-purple-300">Số lượng câu hỏi muốn tạo:</label>
+                    <select id="aiNumQuestions" class="bg-purple-50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 text-xs font-bold rounded-lg px-3 py-1.5">
+                        <option value="3">3 Câu</option>
+                        <option value="5" selected>5 Câu</option>
+                        <option value="10">10 Câu</option>
+                    </select>
+                </div>
+
+                <!-- Action Button -->
+                <button id="btnGenerateAI" class="w-full bg-gradient-to-r from-purple-600 via-lavender-600 to-indigo-600 hover:opacity-95 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-purple-200 dark:shadow-none transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-sparkles"></i> Phân Tích & Tạo Trắc Nghiệm Ngay
+                </button>
+
+                <!-- AI Loading Indicator -->
+                <div id="aiLoading" class="hidden text-center py-6 space-y-2">
+                    <div class="inline-block animate-spin text-purple-600 dark:text-purple-400 text-3xl">
+                        <i class="fa-solid fa-circle-notch"></i>
+                    </div>
+                    <p class="text-xs font-bold text-purple-800 dark:text-purple-200">AI đang phân tích tài liệu và trích xuất câu hỏi...</p>
+                    <p class="text-[10px] text-purple-500">Vui lòng chờ khoảng vài giây nhé!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: QUẢN LÝ MÔN & KHO CÂU HỎI -->
+        <section id="tab-manage" class="tab-content hidden space-y-5">
+            <!-- Quản lý môn học -->
+            <div class="bg-white/90 dark:bg-slate-900/90 p-4 rounded-2xl border border-purple-100 dark:border-purple-900/40 shadow-sm space-y-3">
+                <h2 class="font-bold text-slate-800 dark:text-purple-100 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-purple-600"></i> Danh Sách Môn Học
+                </h2>
+                
+                <div class="flex gap-2">
+                    <input type="text" id="newSubjectInput" placeholder="Nhập tên môn học mới..." class="flex-1 bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    <button id="btnAddSubject" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Thêm
+                    </button>
+                </div>
+
+                <!-- Subject Pill Badges -->
+                <div id="subjectBadgeList" class="flex flex-wrap gap-2 pt-1">
+                    <!-- Badges populated by JS -->
+                </div>
+            </div>
+
+            <!-- Form Thêm Câu Hỏi Mới -->
+            <div class="bg-white/90 dark:bg-slate-900/90 p-4 rounded-2xl border border-purple-100 dark:border-purple-900/40 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-purple-100 dark:border-purple-900/40 pb-3">
+                    <h2 class="font-bold text-slate-800 dark:text-purple-100 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-file-circle-plus text-purple-600"></i> Thêm Câu Hỏi Thủ Công
+                    </h2>
+                    <select id="manageSubjectSelect" class="bg-purple-50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 text-purple-900 dark:text-purple-100 text-xs font-bold rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        <!-- Subjects populated by JS -->
+                    </select>
+                </div>
+
+                <!-- Form Thủ công -->
+                <form id="formSingleQuestion" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-purple-800 dark:text-purple-300 mb-1">Loại câu hỏi:</label>
+                        <select id="qType" onchange="toggleQTypeFields()" class="w-full bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            <option value="mcq">Trắc nghiệm (4 đáp án A, B, C, D)</option>
+                            <option value="text">Tự luận / Điền đáp án</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-purple-800 dark:text-purple-300 mb-1">Nội dung câu hỏi *:</label>
+                        <textarea id="qTitle" required rows="2" placeholder="Nhập nội dung câu hỏi..." class="w-full bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <!-- MCQ Options -->
+                    <div id="mcqOptionsGroup" class="space-y-2">
+                        <label class="block text-xs font-bold text-purple-800 dark:text-purple-300">Các phương án & Chọn đáp án đúng *:</label>
+                        <div class="grid grid-cols-1 gap-2">
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correctMCQ" value="0" checked class="w-4 h-4 text-purple-600">
+                                <input type="text" id="opt0" placeholder="Đáp án A" required class="flex-1 bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-1.5 text-xs focus:outline-none">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correctMCQ" value="1" class="w-4 h-4 text-purple-600">
+                                <input type="text" id="opt1" placeholder="Đáp án B" required class="flex-1 bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-1.5 text-xs focus:outline-none">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correctMCQ" value="2" class="w-4 h-4 text-purple-600">
+                                <input type="text" id="opt2" placeholder="Đáp án C" class="flex-1 bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-1.5 text-xs focus:outline-none">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correctMCQ" value="3" class="w-4 h-4 text-purple-600">
+                                <input type="text" id="opt3" placeholder="Đáp án D" class="flex-1 bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-1.5 text-xs focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Answer Field -->
+                    <div id="textOptionGroup" class="hidden">
+                        <label class="block text-xs font-bold text-purple-800 dark:text-purple-300 mb-1">Đáp án đúng chuẩn *:</label>
+                        <input type="text" id="correctTextAns" placeholder="Ví dụ: 12 hoặc Hà Nội..." class="w-full bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-purple-800 dark:text-purple-300 mb-1">Lời giải thích chi tiết (Không bắt buộc):</label>
+                        <input type="text" id="qExplanation" placeholder="Giải thích chi tiết lý do..." class="w-full bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                    </div>
+
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
+                        + Lưu Vào Kho Câu Hỏi
+                    </button>
+                </form>
+            </div>
+
+            <!-- Danh sách câu hỏi trong Kho -->
+            <div class="bg-white/90 dark:bg-slate-900/90 p-4 rounded-2xl border border-purple-100 dark:border-purple-900/40 shadow-sm space-y-3">
+                <div class="flex justify-between items-center">
+                    <h2 class="font-bold text-slate-800 dark:text-purple-100 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-purple-600"></i> Kho Câu Hỏi (<span id="qCountText">0</span>)
+                    </h2>
+                    <button id="btnClearSubjectQuestions" class="text-xs text-rose-500 hover:underline font-medium">Xóa hết môn này</button>
+                </div>
+
+                <div id="bankQuestionList" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: SAO LƯU, SAO CHÉP & CÀI ĐẶT -->
+        <section id="tab-settings" class="tab-content hidden space-y-4">
+            <!-- Backup & Export -->
+            <div class="bg-white/90 dark:bg-slate-900/90 p-4 rounded-2xl border border-purple-100 dark:border-purple-900/40 shadow-sm space-y-4">
+                <h2 class="font-bold text-slate-800 dark:text-purple-100 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk text-purple-600"></i> Sao Lưu & Chuyển Dữ Liệu (Import/Export)
+                </h2>
+                <p class="text-xs text-purple-600/70 dark:text-purple-300/70 leading-relaxed">
+                    Xuất dữ liệu ra file `.json` để sao lưu kho câu hỏi hoặc dễ dàng gửi qua Zalo/Drive để chuyển từ Máy tính sang Điện thoại.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <button id="btnExportJSON" class="flex items-center justify-center gap-2 bg-purple-100/70 dark:bg-purple-900/50 hover:bg-purple-200 dark:hover:bg-purple-800 text-purple-800 dark:text-purple-200 font-bold p-3 rounded-xl text-xs transition">
+                        <i class="fa-solid fa-download text-purple-600"></i> Xuất File Dữ Liệu (JSON)
+                    </button>
+                    
+                    <label class="flex items-center justify-center gap-2 bg-purple-100/70 dark:bg-purple-900/50 hover:bg-purple-200 dark:hover:bg-purple-800 text-purple-800 dark:text-purple-200 font-bold p-3 rounded-xl text-xs cursor-pointer transition">
+                        <i class="fa-solid fa-upload text-emerald-600"></i> Nhập File Dữ Liệu (.json)
+                        <input type="file" id="fileImportInput" accept=".json" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Khôi phục mẫu -->
+            <div class="bg-white/90 dark:bg-slate-900/90 p-4 rounded-2xl border border-purple-100 dark:border-purple-900/40 shadow-sm space-y-3">
+                <h2 class="font-bold text-rose-500 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Khôi Phục Dữ Liệu Ban Đầu
+                </h2>
+                <p class="text-xs text-purple-600/70 dark:text-purple-300/70">
+                    Thao tác này sẽ đặt lại bộ câu hỏi mẫu mặc định và xóa toàn bộ lịch sử thi.
+                </p>
+                <button id="btnResetSampleData" class="bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow transition">
+                    Nạp Lại Dữ Liệu Mẫu
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-30 pastel-glass border-t border-purple-200/60 dark:border-purple-900/40 py-2 px-4 shadow-lg">
+        <div class="max-w-md mx-auto flex justify-around items-center">
+            <button onclick="switchTab('tab-study')" id="nav-tab-study" class="nav-btn flex flex-col items-center gap-1 text-purple-600 dark:text-purple-300 font-bold transition">
+                <i class="fa-solid fa-square-check text-base"></i>
+                <span class="text-[10px]">Ôn Hôm Nay</span>
+            </button>
+            <button onclick="switchTab('tab-ai')" id="nav-tab-ai" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+                <span class="text-[10px]">Tạo AI</span>
+            </button>
+            <button onclick="switchTab('tab-manage')" id="nav-tab-manage" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                <i class="fa-solid fa-book text-base"></i>
+                <span class="text-[10px]">Kho Câu Hỏi</span>
+            </button>
+            <button onclick="switchTab('tab-settings')" id="nav-tab-settings" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 transition">
+                <i class="fa-solid fa-sliders text-base"></i>
+                <span class="text-[10px]">Cài Đặt</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // Sample Initial Data Structure
+        const SAMPLE_DATA = {
+            subjects: [
+                { id: "math", name: "Toán Học" },
+                { id: "chem", name: "Hóa Học" },
+                { id: "eng", name: "Tiếng Anh" }
+            ],
+            questions: [
+                { id: "q1", subjectId: "math", type: "mcq", question: "Đạo hàm của hàm số y = x^3 là gì?", options: ["3x^2", "x^2", "3x", "6x"], answer: 0, explanation: "(x^n)' = n * x^(n-1), do đó (x^3)' = 3x^2." },
+                { id: "q2", subjectId: "math", type: "text", question: "Giá trị của biểu thức 2^5 là bao nhiêu?", answer: "32", explanation: "2 * 2 * 2 * 2 * 2 = 32." },
+                { id: "q3", subjectId: "math", type: "mcq", question: "Nghiệm của phương trình 2x - 4 = 0 là:", options: ["x = 1", "x = 2", "x = -2", "x = 4"], answer: 1, explanation: "2x = 4 => x = 2." },
+                { id: "q4", subjectId: "math", type: "mcq", question: "Diện tích hình tròn bán kính R = 3 là (lấy pi = 3.14):", options: ["18.84", "28.26", "9.42", "37.68"], answer: 1, explanation: "S = pi * R^2 = 3.14 * 9 = 28.26." },
+                { id: "q5", subjectId: "math", type: "text", question: "Căn bậc hai số học của 144 là bao nhiêu?", answer: "12", explanation: "12^2 = 144." },
+                { id: "q7", subjectId: "chem", type: "mcq", question: "Công thức hóa học của muối ăn thông thường là gì?", options: ["KCl", "NaCl", "NaOH", "NaHCO3"], answer: 1, explanation: "Natri clorua (NaCl) là thành phần chính của muối ăn." },
+                { id: "q8", subjectId: "chem", type: "text", question: "Kim loại duy nhất ở dạng lỏng ở nhiệt độ phòng là gì?", answer: "Thủy ngân", explanation: "Thủy ngân (Hg) có nhiệt độ nóng chảy -38.83 °C." },
+                { id: "q13", subjectId: "eng", type: "mcq", question: "Choose the correct verb form: 'She _____ to school every day.'", options: ["go", "goes", "went", "going"], answer: 1, explanation: "Thì hiện tại đơn với chủ ngữ số ít She -> goes." },
+                { id: "q14", subjectId: "eng", type: "text", question: "What is the past tense of the verb 'BUY'?", answer: "bought", explanation: "Buy -> Bought -> Bought." }
+            ],
+            streak: 0,
+            lastStudyDate: null,
+            totalTestsCompleted: 0,
+            totalAnswered: 0,
+            totalCorrect: 0
+        };
+
+        // App State
+        let db = { ...SAMPLE_DATA };
+        let currentActiveSubjectId = "math";
+        let userAnswersState = {}; 
+        let soundEnabled = true;
+        let activeTimers = {}; // { qId: intervalId }
+        let timeRemaining = {}; // { qId: seconds }
+        let startTime = null;
+
+        // --- WEB AUDIO API SOUND SYNTHESIZER ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    // Chime Up
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                    osc.start(audioCtx.currentTime);
+                    osc.stop(audioCtx.currentTime + 0.35);
+                } else if (type === 'wrong') {
+                    // Buzz Low
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(130, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start(audioCtx.currentTime);
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch (e) {
+                console.log("Audio Error:", e);
+            }
+        }
+
+        // --- LOCAL STORAGE UTILS ---
+        function loadData() {
+            const saved = localStorage.getItem("daily_quiz_pastel_db_v2");
+            if (saved) {
+                try {
+                    db = JSON.parse(saved);
+                } catch (e) {
+                    console.error("Error reading saved data:", e);
+                    db = { ...SAMPLE_DATA };
+                }
+            } else {
+                db = { ...SAMPLE_DATA };
+                saveData();
+            }
+
+            if (!db.subjects) db.subjects = SAMPLE_DATA.subjects;
+            if (!db.questions) db.questions = SAMPLE_DATA.questions;
+            if (db.streak === undefined) db.streak = 0;
+            if (db.totalTestsCompleted === undefined) db.totalTestsCompleted = 0;
+            if (db.totalAnswered === undefined) db.totalAnswered = 0;
+            if (db.totalCorrect === undefined) db.totalCorrect = 0;
+
+            if (db.subjects.length > 0) {
+                currentActiveSubjectId = db.subjects[0].id;
+            }
+
+            checkAndUpdateStreak();
+        }
+
+        function saveData() {
+            localStorage.setItem("daily_quiz_pastel_db_v2", JSON.stringify(db));
+        }
+
+        // --- STREAK CALCULATOR ---
+        function checkAndUpdateStreak() {
+            const todayStr = getTodayKey();
+            if (!db.lastStudyDate) return;
+
+            const lastDate = new Date(db.lastStudyDate);
+            const today = new Date(todayStr);
+            const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 1) {
+                // Missed a day, reset streak
+                db.streak = 0;
+                saveData();
+            }
+        }
+
+        function recordDailyStudy() {
+            const todayStr = getTodayKey();
+            if (db.lastStudyDate !== todayStr) {
+                const lastDate = db.lastStudyDate ? new Date(db.lastStudyDate) : null;
+                const today = new Date(todayStr);
+                
+                if (lastDate && Math.floor((today - lastDate) / (1000 * 60 * 60 * 24)) === 1) {
+                    db.streak += 1;
+                } else if (!lastDate || Math.floor((today - lastDate) / (1000 * 60 * 60 * 24)) > 1) {
+                    db.streak = 1;
+                }
+                db.lastStudyDate = todayStr;
+                saveData();
+            }
+            updateStatsDisplay();
+        }
+
+        function getTodayKey() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        // --- INITIALIZATION ---
+        window.addEventListener("DOMContentLoaded", () => {
+            loadData();
+            initTheme();
+            setupEvents();
+            renderSubjectDropdowns();
+            renderSubjectBadges();
+            loadDailyQuiz();
+            renderQuestionBankList();
+            updateStatsDisplay();
+        });
+
+        // Theme Support
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        document.getElementById("themeToggle").addEventListener("click", () => {
+            if (document.documentElement.classList.contains("dark")) {
+                document.documentElement.classList.remove("dark");
+                localStorage.theme = "light";
+            } else {
+                document.documentElement.classList.add("dark");
+                localStorage.theme = "dark";
+            }
+        });
+
+        document.getElementById("soundToggle").addEventListener("click", () => {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById("soundIcon");
+            if (soundEnabled) {
+                icon.className = "fa-solid fa-volume-high text-base text-purple-600";
+                showToast("Đã BẬT âm thanh", "info");
+            } else {
+                icon.className = "fa-solid fa-volume-xmark text-base text-slate-400";
+                showToast("Đã TẮT âm thanh", "info");
+            }
+        });
+
+        // --- NAVIGATION ---
+        function switchTab(tabId) {
+            document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+            document.getElementById(tabId).classList.remove("hidden");
+
+            document.querySelectorAll(".nav-btn").forEach(btn => {
+                btn.classList.remove("text-purple-600", "dark:text-purple-300", "font-bold");
+                btn.classList.add("text-slate-400");
+            });
+
+            const activeNav = document.getElementById("nav-" + tabId);
+            if (activeNav) {
+                activeNav.classList.add("text-purple-600", "dark:text-purple-300", "font-bold");
+                activeNav.classList.remove("text-slate-400");
+            }
+
+            if (tabId === 'tab-study') {
+                loadDailyQuiz();
+            } else if (tabId === 'tab-manage') {
+                renderQuestionBankList();
+            }
+        }
+
+        // --- STATS UPDATE ---
+        function updateStatsDisplay() {
+            document.getElementById("streakDisplay").innerText = `${db.streak || 0} ngày`;
+            document.getElementById("statTotalQ").innerText = db.questions.length;
+            
+            const accuracy = db.totalAnswered > 0 ? Math.round((db.totalCorrect / db.totalAnswered) * 100) : 0;
+            document.getElementById("statAccuracy").innerText = `${accuracy}%`;
+            document.getElementById("statTestsCompleted").innerText = db.totalTestsCompleted || 0;
+        }
+
+        // --- SUBJECT MANAGEMENT ---
+        function renderSubjectDropdowns() {
+            const studySelect = document.getElementById("studySubjectSelect");
+            const manageSelect = document.getElementById("manageSubjectSelect");
+            const aiSelect = document.getElementById("aiSubjectSelect");
+
+            let html = db.subjects.map(sub => `<option value="${sub.id}">${sub.name}</option>`).join("");
+            
+            studySelect.innerHTML = html;
+            manageSelect.innerHTML = html;
+            aiSelect.innerHTML = html;
+
+            studySelect.value = currentActiveSubjectId;
+            manageSelect.value = currentActiveSubjectId;
+            aiSelect.value = currentActiveSubjectId;
+        }
+
+        function renderSubjectBadges() {
+            const container = document.getElementById("subjectBadgeList");
+            container.innerHTML = db.subjects.map(sub => {
+                const count = db.questions.filter(q => q.subjectId === sub.id).length;
+                return `
+                    <div class="inline-flex items-center gap-1.5 bg-purple-100/80 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 px-3 py-1 rounded-xl text-xs font-bold border border-purple-200 dark:border-purple-800">
+                        <span>${sub.name} (${count})</span>
+                        ${db.subjects.length > 1 ? `<button onclick="deleteSubject('${sub.id}')" class="text-purple-400 hover:text-rose-500 ml-1"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function deleteSubject(subId) {
+            if (confirm("Xóa môn học này sẽ xóa toàn bộ câu hỏi thuộc môn này. Bạn chắc chắn chứ?")) {
+                db.subjects = db.subjects.filter(s => s.id !== subId);
+                db.questions = db.questions.filter(q => q.subjectId !== subId);
+                if (currentActiveSubjectId === subId && db.subjects.length > 0) {
+                    currentActiveSubjectId = db.subjects[0].id;
+                }
+                saveData();
+                renderSubjectDropdowns();
+                renderSubjectBadges();
+                loadDailyQuiz();
+                updateStatsDisplay();
+                showToast("Đã xóa môn học thành công", "info");
+            }
+        }
+
+        // --- DAILY QUIZ CORE LOGIC ---
+        function loadDailyQuiz(forceNew = false) {
+            // Clear existing active timers
+            Object.values(activeTimers).forEach(clearInterval);
+            activeTimers = {};
+            timeRemaining = {};
+            userAnswersState = {};
+            startTime = Date.now();
+
+            const todayKey = `${getTodayKey()}_${currentActiveSubjectId}`;
+            const subjectQuestions = db.questions.filter(q => q.subjectId === currentActiveSubjectId);
+
+            const quizContainer = document.getElementById("quizContainer");
+            const emptyState = document.getElementById("emptyQuizState");
+            const summaryCard = document.getElementById("quizSummary");
+
+            if (!db.dailyQuizMap) db.dailyQuizMap = {};
+
+            if (subjectQuestions.length === 0) {
+                quizContainer.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                summaryCard.classList.add("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+            summaryCard.classList.remove("hidden");
+
+            let selectedQIds = db.dailyQuizMap[todayKey];
+
+            if (!selectedQIds || forceNew || selectedQIds.length === 0) {
+                const shuffled = [...subjectQuestions].sort(() => 0.5 - Math.random());
+                selectedQIds = shuffled.slice(0, 5).map(q => q.id);
+                db.dailyQuizMap[todayKey] = selectedQIds;
+                saveData();
+            }
+
+            const activeQuestions = selectedQIds.map(id => db.questions.find(q => q.id === id)).filter(Boolean);
+
+            renderQuizCards(activeQuestions);
+            updateScoreSummary(activeQuestions.length);
+        }
+
+        function renderQuizCards(questions) {
+            const timerEnabled = document.getElementById("timerEnableToggle").checked;
+            const defaultSecs = parseInt(document.getElementById("timerSecondsSelect").value) || 60;
+            const container = document.getElementById("quizContainer");
+
+            container.innerHTML = questions.map((q, idx) => {
+                timeRemaining[q.id] = defaultSecs;
+                return `
+                    <div class="bg-white/90 dark:bg-slate-900/90 p-4 sm:p-5 rounded-2xl border border-purple-100 dark:border-purple-900/40 shadow-sm space-y-3 relative overflow-hidden" id="qcard-${q.id}">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-extrabold text-xs px-3 py-1 rounded-xl">
+                                Câu ${idx + 1}/${questions.length}
+                            </span>
+                            
+                            <!-- Timer Badge -->
+                            <div id="timer-badge-${q.id}" class="${timerEnabled ? 'flex' : 'hidden'} items-center gap-1.5 text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950 px-2.5 py-1 rounded-lg border border-purple-200 dark:border-purple-800">
+                                <i class="fa-regular fa-stopwatch text-purple-500"></i>
+                                <span id="timer-val-${q.id}">${defaultSecs}s</span>
+                            </div>
+                        </div>
+
+                        <p class="font-bold text-slate-800 dark:text-purple-100 text-sm leading-relaxed">${q.question}</p>
+
+                        ${q.type === 'mcq' ? `
+                            <div class="space-y-2 pt-1">
+                                ${q.options.map((opt, optIdx) => `
+                                    <button onclick="submitAnswer('${q.id}', ${optIdx}, 'mcq')" id="btn-opt-${q.id}-${optIdx}" class="w-full text-left p-3 rounded-xl border border-purple-100 dark:border-purple-800/60 bg-purple-50/30 dark:bg-slate-800/40 hover:bg-purple-100/50 dark:hover:bg-purple-900/40 transition flex items-center gap-3 text-xs font-semibold text-slate-700 dark:text-purple-200">
+                                        <span class="w-6 h-6 rounded-lg bg-purple-100 dark:bg-purple-900/80 text-purple-700 dark:text-purple-300 text-xs font-bold flex items-center justify-center shrink-0">
+                                            ${String.fromCharCode(65 + optIdx)}
+                                        </span>
+                                        <span class="flex-1">${opt}</span>
+                                        <i class="fa-solid fa-circle-check opacity-0 text-emerald-500 text-sm"></i>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <div class="flex gap-2 pt-1">
+                                <input type="text" id="input-${q.id}" placeholder="Nhập câu trả lời của bạn..." class="flex-1 bg-purple-50/50 dark:bg-slate-800 border border-purple-200 dark:border-purple-700 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                <button onclick="submitAnswer('${q.id}', null, 'text')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow">
+                                    Kiểm Tra
+                                </button>
+                            </div>
+                        `}
+
+                        <!-- Feedback & Explanation Area -->
+                        <div id="explain-${q.id}" class="hidden p-3 rounded-xl text-xs space-y-1"></div>
+                    </div>
+                `;
+            }).join('');
+
+            // Start Timers if enabled
+            if (timerEnabled) {
+                questions.forEach(q => startQuestionTimer(q.id));
+            }
+        }
+
+        function startQuestionTimer(qId) {
+            if (activeTimers[qId]) clearInterval(activeTimers[qId]);
+
+            activeTimers[qId] = setInterval(() => {
+                if (timeRemaining[qId] > 0) {
+                    timeRemaining[qId]--;
+                    const valEl = document.getElementById(`timer-val-${qId}`);
+                    if (valEl) valEl.innerText = `${timeRemaining[qId]}s`;
+
+                    if (timeRemaining[qId] <= 10) {
+                        const badge = document.getElementById(`timer-badge-${qId}`);
+                        if (badge) badge.className = badge.className.replace("text-purple-700", "text-rose-600 animate-pulse");
+                    }
+                } else {
+                    clearInterval(activeTimers[qId]);
+                    // Auto submit time out
+                    if (!userAnswersState[qId]) {
+                        handleTimeOut(qId);
+                    }
+                }
+            }, 1000);
+        }
+
+        function handleTimeOut(qId) {
+            submitAnswer(qId, -1, 'timeout');
+        }
+
+        // --- CHECK & EVALUATE ANSWER ---
+        function submitAnswer(qId, userVal, type) {
+            if (userAnswersState[qId]) return; // Already answered
+
+            if (activeTimers[qId]) clearInterval(activeTimers[qId]);
+
+            const question = db.questions.find(q => q.id === qId);
+            if (!question) return;
+
+            const explainBox = document.getElementById(`explain-${qId}`);
+            let isCorrect = false;
+
+            if (type === 'mcq') {
+                isCorrect = (userVal === question.answer);
+                
+                question.options.forEach((_, optIdx) => {
+                    const btn = document.getElementById(`btn-opt-${qId}-${optIdx}`);
+                    if (btn) {
+                        btn.disabled = true;
+                        if (optIdx === question.answer) {
+                            btn.classList.add("border-emerald-500", "bg-emerald-50", "dark:bg-emerald-950/50", "text-emerald-800", "dark:text-emerald-200");
+                            btn.querySelector(".fa-circle-check").classList.remove("opacity-0");
+                        } else if (optIdx === userVal && !isCorrect) {
+                            btn.classList.add("border-rose-500", "bg-rose-50", "dark:bg-rose-950/50", "text-rose-800", "dark:text-rose-200");
+                        }
+                    }
+                });
+            } else if (type === 'text') {
+                const inputVal = document.getElementById(`input-${qId}`).value.trim();
+                if (!inputVal) {
+                    showToast("Vui lòng nhập câu trả lời!", "warning");
+                    return;
+                }
+                isCorrect = inputVal.toLowerCase() === String(question.answer).trim().toLowerCase();
+                document.getElementById(`input-${qId}`).disabled = true;
+            } else if (type === 'timeout') {
+                isCorrect = false;
+            }
+
+            // Sound feedback
+            playSound(isCorrect ? 'correct' : 'wrong');
+
+            userAnswersState[qId] = { isCorrect };
+
+            // Render Explanation Box
+            explainBox.classList.remove("hidden");
+            if (type === 'timeout') {
+                explainBox.className = "p-3 rounded-xl text-xs space-y-1 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800";
+                explainBox.innerHTML = `
+                    <div class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-clock text-amber-500"></i> Đã hết thời gian!</div>
+                    <div><strong>Đáp án đúng:</strong> ${question.type === 'mcq' ? question.options[question.answer] : question.answer}</div>
+                    <p class="pt-0.5">${question.explanation || ""}</p>
+                `;
+            } else if (isCorrect) {
+                explainBox.className = "p-3 rounded-xl text-xs space-y-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800";
+                explainBox.innerHTML = `
+                    <div class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-500"></i> Chính xác!</div>
+                    <p>${question.explanation || "Không có giải thích thêm."}</p>
+                `;
+            } else {
+                explainBox.className = "p-3 rounded-xl text-xs space-y-1 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-800";
+                explainBox.innerHTML = `
+                    <div class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark text-rose-500"></i> Chưa đúng rồi!</div>
+                    <div><strong>Đáp án đúng:</strong> ${question.type === 'mcq' ? question.options[question.answer] : question.answer}</div>
+                    <p class="pt-0.5">${question.explanation || ""}</p>
+                `;
+            }
+
+            // Global Statistics Update
+            db.totalAnswered += 1;
+            if (isCorrect) db.totalCorrect += 1;
+
+            const todayKey = `${getTodayKey()}_${currentActiveSubjectId}`;
+            const totalQ = (db.dailyQuizMap[todayKey] || []).length;
+            updateScoreSummary(totalQ);
+            saveData();
+            updateStatsDisplay();
+        }
+
+        function updateScoreSummary(totalCount) {
+            const answeredQIds = Object.keys(userAnswersState);
+            const correctCount = Object.values(userAnswersState).filter(a => a.isCorrect).length;
+
+            document.getElementById("scoreText").innerText = `${correctCount}/${totalCount}`;
+            const percentage = totalCount > 0 ? (correctCount / totalCount) * 100 : 0;
+            document.getElementById("scoreProgressBar").style.width = `${percentage}%`;
+
+            const timeElapsed = startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
+            document.getElementById("totalTimeTakenText").innerHTML = `<i class="fa-regular fa-stopwatch"></i> Thời gian: ${timeElapsed}s`;
+
+            const feedbackEl = document.getElementById("scoreFeedback");
+            if (answeredQIds.length === 0) {
+                feedbackEl.innerText = "Hãy hoàn thành tất cả các câu hỏi bên dưới nhé!";
+            } else if (answeredQIds.length < totalCount) {
+                feedbackEl.innerText = `Đã làm ${answeredQIds.length}/${totalCount} câu. Cố lên!`;
+            } else {
+                feedbackEl.innerText = `Xuất sắc! Bạn đạt ${Math.round(percentage)}% câu trả lời đúng.`;
+                recordDailyStudy();
+                db.totalTestsCompleted += 1;
+                saveData();
+                updateStatsDisplay();
+            }
+        }
+
+        // --- AI GEMINI INTEGRATION ---
+        async function generateQuestionsWithAI() {
+            const textContent = document.getElementById("aiSourceText").value.trim();
+            const subjectId = document.getElementById("aiSubjectSelect").value;
+            const numQuestions = document.getElementById("aiNumQuestions").value;
+            const userKey = document.getElementById("userApiKeyInput").value.trim();
+
+            if (!textContent) {
+                showToast("Vui lòng dán văn bản bài học cần tạo câu hỏi!", "warning");
+                return;
+            }
+
+            const btnGen = document.getElementById("btnGenerateAI");
+            const loadingEl = document.getElementById("aiLoading");
+
+            btnGen.disabled = true;
+            btnGen.classList.add("opacity-50");
+            loadingEl.classList.remove("hidden");
+
+            const prompt = `Bạn là một chuyên gia giáo dục. Hãy đọc đoạn văn bản bài học dưới đây và tạo đúng ${numQuestions} câu hỏi trắc nghiệm khách quan (MCQ) bằng tiếng Việt để giúp học sinh ôn tập.
+Mỗi câu hỏi có 4 lựa chọn (A, B, C, D), chỉ có 1 đáp án đúng duy nhất, kèm lời giải thích ngắn gọn.
+
+Văn bản bài học:
+"""
+${textContent}
+"""`;
+
+            const systemPrompt = `Trả về đúng định dạng JSON danh sách các câu hỏi theo schema sau (không thêm văn bản ngoài JSON):
+[
+  {
+    "question": "Nội dung câu hỏi",
+    "options": ["Lựa chọn A", "Lựa chọn B", "Lựa chọn C", "Lựa chọn D"],
+    "answer": 0, // Chỉ số 0, 1, 2, hoặc 3 tương ứng đáp án đúng
+    "explanation": "Lời giải thích ngắn gọn"
+  }
+]`;
+
+            try {
+                // Use user-provided key if available, otherwise default runtime window key
+                const apiKey = userKey || "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                };
+
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Lỗi kết nối AI (${res.status})`);
+                }
+
+                const data = await res.json();
+                const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!jsonText) throw new Error("AI không trả về kết quả hợp lệ");
+
+                const generatedItems = JSON.parse(jsonText);
+
+                let addedCount = 0;
+                generatedItems.forEach(item => {
+                    if (item.question && Array.isArray(item.options) && item.options.length >= 2) {
+                        db.questions.push({
+                            id: "q_ai_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+                            subjectId: subjectId,
+                            type: "mcq",
+                            question: item.question,
+                            options: item.options,
+                            answer: parseInt(item.answer) || 0,
+                            explanation: item.explanation || "Giải thích từ Gemini AI."
+                        });
+                        addedCount++;
+                    }
+                });
+
+                saveData();
+                renderQuestionBankList();
+                renderSubjectBadges();
+                updateStatsDisplay();
+
+                showToast(`AI đã tạo thành công ${addedCount} câu hỏi mới!`, "success");
+                document.getElementById("aiSourceText").value = "";
+                
+                // Switch to study tab for immediate review
+                currentActiveSubjectId = subjectId;
+                renderSubjectDropdowns();
+                switchTab('tab-study');
+
+            } catch (err) {
+                console.error("AI Error:", err);
+                showToast("Lỗi tạo câu hỏi: " + err.message, "danger");
+            } finally {
+                btnGen.disabled = false;
+                btnGen.classList.remove("opacity-50");
+                loadingEl.classList.add("hidden");
+            }
+        }
+
+        // --- QUESTION BANK & MANUAL ADD ---
+        function toggleQTypeFields() {
+            const qType = document.getElementById("qType").value;
+            const mcqGroup = document.getElementById("mcqOptionsGroup");
+            const textGroup = document.getElementById("textOptionGroup");
+
+            if (qType === 'mcq') {
+                mcqGroup.classList.remove("hidden");
+                textGroup.classList.add("hidden");
+            } else {
+                mcqGroup.classList.add("hidden");
+                textGroup.classList.remove("hidden");
+            }
+        }
+
+        function renderQuestionBankList() {
+            const targetSubId = document.getElementById("manageSubjectSelect").value || currentActiveSubjectId;
+            const questions = db.questions.filter(q => q.subjectId === targetSubId);
+            const container = document.getElementById("bankQuestionList");
+
+            document.getElementById("qCountText").innerText = questions.length;
+
+            if (questions.length === 0) {
+                container.innerHTML = `<p class="text-xs text-purple-400 italic py-4 text-center">Chưa có câu hỏi nào trong kho môn này.</p>`;
+                return;
+            }
+
+            container.innerHTML = questions.map((q, idx) => `
+                <div class="flex items-center justify-between p-3 bg-purple-50/50 dark:bg-slate-800 rounded-xl border border-purple-100 dark:border-purple-800 text-xs">
+                    <div class="flex-1 pr-2">
+                        <div class="font-bold text-slate-800 dark:text-purple-200 line-clamp-1">${idx + 1}. ${q.question}</div>
+                        <div class="text-[10px] text-purple-500 dark:text-purple-400 mt-0.5">Loại: ${q.type === 'mcq' ? 'Trắc nghiệm' : 'Tự luận'} | ĐA: ${q.type === 'mcq' ? (q.options[q.answer] || q.answer) : q.answer}</div>
+                    </div>
+                    <button onclick="deleteQuestion('${q.id}')" class="text-purple-400 hover:text-rose-500 p-1.5 transition">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </div>
+            `).join("");
+        }
+
+        function deleteQuestion(qId) {
+            db.questions = db.questions.filter(q => q.id !== qId);
+            saveData();
+            renderQuestionBankList();
+            renderSubjectBadges();
+            updateStatsDisplay();
+            showToast("Đã xóa câu hỏi khỏi kho!", "info");
+        }
+
+        // --- DATA EXPORT & IMPORT ---
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `DailyQuiz_Backup_${getTodayKey()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Đã xuất file JSON thành công!", "success");
+        }
+
+        function importDataJSON(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedDb = JSON.parse(e.target.result);
+                    if (importedDb.subjects && importedDb.questions) {
+                        db = importedDb;
+                        saveData();
+                        renderSubjectDropdowns();
+                        renderSubjectBadges();
+                        loadDailyQuiz();
+                        renderQuestionBankList();
+                        updateStatsDisplay();
+                        showToast("Khôi phục dữ liệu từ JSON thành công!", "success");
+                    } else {
+                        showToast("Cấu trúc file JSON không hợp lệ!", "danger");
+                    }
+                } catch (err) {
+                    showToast("Lỗi đọc file JSON!", "danger");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- EVENT HANDLERS & LISTENERS ---
+        function setupEvents() {
+            document.getElementById("studySubjectSelect").addEventListener("change", (e) => {
+                currentActiveSubjectId = e.target.value;
+                loadDailyQuiz();
+            });
+
+            document.getElementById("manageSubjectSelect").addEventListener("change", (e) => {
+                renderQuestionBankList();
+            });
+
+            document.getElementById("btnNewSet").addEventListener("click", () => {
+                loadDailyQuiz(true);
+                showToast("Đã đổi bộ 5 câu hỏi mới!", "success");
+            });
+
+            document.getElementById("timerEnableToggle").addEventListener("change", () => {
+                loadDailyQuiz();
+            });
+
+            document.getElementById("timerSecondsSelect").addEventListener("change", () => {
+                loadDailyQuiz();
+            });
+
+            // AI Generator trigger
+            document.getElementById("btnGenerateAI").addEventListener("click", generateQuestionsWithAI);
+
+            // Export & Import
+            document.getElementById("btnExportJSON").addEventListener("click", exportDataJSON);
+            document.getElementById("fileImportInput").addEventListener("change", (e) => {
+                if (e.target.files.length > 0) {
+                    importDataJSON(e.target.files[0]);
+                }
+            });
+
+            // Add Subject Form
+            document.getElementById("btnAddSubject").addEventListener("click", () => {
+                const input = document.getElementById("newSubjectInput");
+                const name = input.value.trim();
+                if (!name) return;
+
+                const newSub = {
+                    id: "sub_" + Date.now(),
+                    name: name
+                };
+                db.subjects.push(newSub);
+                currentActiveSubjectId = newSub.id;
+                input.value = "";
+                saveData();
+                renderSubjectDropdowns();
+                renderSubjectBadges();
+                showToast(`Đã thêm môn: ${name}`, "success");
+            });
+
+            // Form Single Question Submit
+            document.getElementById("formSingleQuestion").addEventListener("submit", (e) => {
+                e.preventDefault();
+                const subId = document.getElementById("manageSubjectSelect").value;
+                const qType = document.getElementById("qType").value;
+                const title = document.getElementById("qTitle").value.trim();
+                const explanation = document.getElementById("qExplanation").value.trim();
+
+                let newQ = {
+                    id: "q_" + Date.now(),
+                    subjectId: subId,
+                    type: qType,
+                    question: title,
+                    explanation: explanation
+                };
+
+                if (qType === 'mcq') {
+                    const opts = [
+                        document.getElementById("opt0").value.trim(),
+                        document.getElementById("opt1").value.trim(),
+                        document.getElementById("opt2").value.trim(),
+                        document.getElementById("opt3").value.trim()
+                    ].filter(Boolean);
+
+                    if (opts.length < 2) {
+                        showToast("Trắc nghiệm cần ít nhất 2 phương án!", "warning");
+                        return;
+                    }
+
+                    const selectedCorrect = parseInt(document.querySelector('input[name="correctMCQ"]:checked').value);
+                    newQ.options = opts;
+                    newQ.answer = selectedCorrect < opts.length ? selectedCorrect : 0;
+                } else {
+                    const correctText = document.getElementById("correctTextAns").value.trim();
+                    if (!correctText) {
+                        showToast("Vui lòng nhập đáp án đúng!", "warning");
+                        return;
+                    }
+                    newQ.answer = correctText;
+                }
+
+                db.questions.push(newQ);
+                saveData();
+
+                document.getElementById("qTitle").value = "";
+                document.getElementById("opt0").value = "";
+                document.getElementById("opt1").value = "";
+                document.getElementById("opt2").value = "";
+                document.getElementById("opt3").value = "";
+                document.getElementById("correctTextAns").value = "";
+                document.getElementById("qExplanation").value = "";
+
+                renderQuestionBankList();
+                renderSubjectBadges();
+                updateStatsDisplay();
+                showToast("Thêm câu hỏi mới thành công!", "success");
+            });
+
+            // Clear Subject Questions
+            document.getElementById("btnClearSubjectQuestions").addEventListener("click", () => {
+                const subId = document.getElementById("manageSubjectSelect").value;
+                if (confirm("Xóa tất cả câu hỏi thuộc môn này?")) {
+                    db.questions = db.questions.filter(q => q.subjectId !== subId);
+                    saveData();
+                    renderQuestionBankList();
+                    renderSubjectBadges();
+                    updateStatsDisplay();
+                    showToast("Đã xóa toàn bộ câu hỏi môn này", "info");
+                }
+            });
+
+            // Reset Sample Data
+            document.getElementById("btnResetSampleData").addEventListener("click", () => {
+                if (confirm("Khôi phục toàn bộ dữ liệu về mặc định ban đầu?")) {
+                    db = { ...SAMPLE_DATA };
+                    saveData();
+                    renderSubjectDropdowns();
+                    renderSubjectBadges();
+                    loadDailyQuiz();
+                    renderQuestionBankList();
+                    updateStatsDisplay();
+                    showToast("Đã khôi phục dữ liệu mẫu ban đầu!", "success");
+                }
+            });
+        }
+
+        // --- TOAST NOTIFICATION UTILS ---
+        function showToast(message, type = "info") {
+            const toast = document.getElementById("toast");
+            const msgEl = document.getElementById("toastMessage");
+            const icon = document.getElementById("toastIcon");
+
+            msgEl.innerText = message;
+
+            if (type === "success") {
+                icon.className = "fa-solid fa-circle-check text-emerald-500 text-lg";
+            } else if (type === "warning") {
+                icon.className = "fa-solid fa-triangle-exclamation text-amber-500 text-lg";
+            } else if (type === "danger") {
+                icon.className = "fa-solid fa-circle-xmark text-rose-500 text-lg";
+            } else {
+                icon.className = "fa-solid fa-circle-info text-purple-500 text-lg";
+            }
+
+            toast.classList.remove("translate-y-[-150%]");
+
+            setTimeout(() => {
+                toast.classList.add("translate-y-[-150%]");
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
